@@ -1,11 +1,22 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+
+
+def crop(frame,left,top,w,h):
+    return frame[top:top+h,left:left+w]
+
+
 
 def main():
     
     w = 800
     h = 600
     
+    left=0
+    top=300
+    height=200
+    width=800
     
     cap = cv2.VideoCapture(1)
     
@@ -22,28 +33,23 @@ def main():
 
     ret, frame1 = cap.read()
     ret, frame2 = cap.read()
-
-
+    
     while ret:
         
         d = cv2.absdiff(frame1, frame2)
-        
         grey = cv2.cvtColor(d, cv2.COLOR_BGR2GRAY)
-        
         blur = cv2.GaussianBlur(grey, (5, 5), 0)
-        
         ret, th = cv2.threshold( blur, 20, 255, cv2.THRESH_BINARY)
-    
         dilated = cv2.dilate(th, np.ones((3, 3), np.uint8), iterations=1 )
-        
         eroded = cv2.erode(dilated, np.ones((3, 3), np.uint8), iterations=1 )
-        
         c, h = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
         cv2.drawContours(frame1, c, -1, (0, 25, 230), 2)
 
-        cv2.imshow("Original", eroded)
-        cv2.imshow("Output", frame1)
+
+        cv2.imshow("eroded", eroded)
+        frame1=crop(frame1,left,top,width,height)
+        cv2.imshow("Croped box", frame1)
+        #plt.imshow(frame1,cmap='gray')
         if cv2.waitKey(1) == 27: # exit on ESC
             break
         
